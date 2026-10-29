@@ -1,75 +1,78 @@
 # Plan
 
-Scope-first plan. Dates are not fixed here; order work by the milestones and cut from the bottom if time runs short. Hard deadline: 2026-11-01 21:30 IST.
+Core logic first, no UI. Everything is verified from the terminal with tests, scripts and `curl`. Hard deadline: 2026-11-01 21:30 IST.
 
-## Milestones
+## Build table
 
-### M0 — De-risk assumptions (do first, blocks everything)
+Target is **testnet for now**; mainnet is a later option (still required before submission/prizes).
 
-- [ ] Request HSP merchant access (`app_key`, HMAC secret, ES256K key). Ask in the support group: https://t.me/+M5yaRB-u4PRiNWM1
-- [ ] Read `onboarding.md`, `authentication.md`, `webhook.md` on https://hashkey-merchant.github.io/docs/en/
-- [ ] On QA (`https://merchant-qa.hashkeymerchant.com`): create a reusable order with `pay_to` = a contract address. Confirm it is accepted.
-- [ ] Confirm the vault can receive the payment as a plain ERC20 transfer.
-- [ ] Get HSK Chain mainnet chain ID, RPC, USDC/USDT addresses from https://hashfans.io/dev-onepager
-- [ ] Confirm HSKSwap is not needed (it is not for this track).
+| # | Step | What I build | Where | How I verify | Blocked by | Status |
+|---|---|---|---|---|---|---|
+| 0 | Setup | Read Next.js docs, install Foundry, viem, zod, test runner | `package.json`, `contracts/` | `forge --version`, `npm test` runs | Nothing | **Done** |
+| 1 | HSP client | Canonical JSON, HMAC signing, ES256K JWT, mandate builder, create order, query payments, webhook verify | `src/lib/hsp/` | 32 unit tests, HMAC vectors cross-checked with openssl | Real keys to call QA | **Done (offline only)** |
+| 2 | `pay_to` test | Script creating a reusable order on HSP QA with a contract as `pay_to` | `scripts/test-pay-to.ts` | QA returns checkout URL, test payment lands in the collector | HSP credentials | Not started |
+| 3 | Vault contract | `ReceivableVault.sol` + `SellerCollector.sol`: deposit/withdraw, advance, waterfall, default, reserve, roles, pause | `contracts/` | 38 Foundry tests incl. 2 fuzz | Nothing | **Done** |
+| 4 | Data fetch | Map HSP payments to the underwriter's history type; mock source until credentials | `src/lib/hsp/payments.ts` | Tests on fixture data | Real data needs credentials | Partly (client pages payments; mapping not written) |
+| 5 | Underwriter | Scoring, caps, declines, rationale, address screening | `src/lib/underwrite/` | 22 unit tests | Nothing | **Done** |
+| 6 | Vault client + API | viem client; `POST /api/orders`, `POST /api/advance`, `GET /api/position` | `src/lib/vault/`, `src/app/api/` | curl against dev server + anvil | Nothing | Not started |
+| 7 | Webhook | `POST /api/webhook/hsp`: HMAC check, idempotency, then sweep/settle | `src/app/api/webhook/` | Signed fake payloads, duplicate delivery | Nothing | Not started (verify fn + schema exist) |
+| 8 | End-to-end local | Buyer simulator pays, vault settles, receipt log | `scripts/simulate-buyer.ts` | One scripted run on anvil, mocked HSP | Nothing | Not started |
+| 9 | Testnet deploy | Deploy vault to HashKey Chain testnet, verify source, one real flow on HSP QA | `contracts/script/` | Explorer links, balances match | Testnet RPC + chain ID, HSP QA credentials | Not started |
+| 10 | Mainnet (later) | Same deploy on HSK mainnet (chain 177) + one small real flow on HSP production | `contracts/script/` | Explorer links, balances match | Mainnet RPC, HSP production access | Later |
 
-Exit: a test payment settles into a contract on QA/testnet.
+### Done
+- Steps 0, 1, 3, 5 (all offline: 92 tests passing, typecheck and lint clean)
 
-### M1 — Contract
+### Not complete
+- Step 4 (mapping), 6, 7, 8 need no outside access
+- Steps 2, 9 need HSP QA credentials and a testnet RPC
+- Step 10 is deferred; mainnet deployment is still a hackathon requirement for demo selection and prizes
 
-`ReceivableVault.sol` (Solidity, Foundry or Hardhat).
+## Order
 
-- [ ] State: LP deposits, per-seller advance record (principal, discount, repaid, status).
-- [ ] `deposit(amount)`, `withdraw(amount)` for LPs.
-- [ ] `advance(seller, amount, discount)` — callable by the underwriter role only.
-- [ ] `settle(seller)` — reads token balance delta, applies waterfall: LP principal+discount, then seller.
-- [ ] `flagDefault(seller)` — underwriter role; draws the first-loss reserve.
-- [ ] Events for every state change (feeds receipts and the dashboard).
-- [ ] Tests: waterfall math, over-payment, default, reentrancy, role checks.
-- [ ] Deploy to testnet, then HSK Chain mainnet. Verify source.
+1. **Steps 3, 5, 1 first.** They need no outside access and are the core.
+2. **Steps 6 to 8**, with HSP mocked, to get a full loop working locally.
+3. **Steps 2 and 9** as soon as credentials arrive. They validate the assumptions, so earlier steps are built to survive a `pay_to` change (keeper fallback: normal address plus a script that forwards funds to the vault).
 
-Design notes: keep it small and auditable. Cap advance per seller. Pausable by owner. No upgradeability.
+UI is later and only if time remains.
 
-### M2 — Backend (Next.js route handlers)
+## Status
 
-- [ ] HSP client: canonical JSON, HMAC-SHA256 headers (`X-App-Key`, `X-Signature`, `X-Timestamp`, `X-Nonce`), ES256K JWT for `merchant_authorization`.
-- [ ] Create reusable order, query reusable payments.
-- [ ] Webhook endpoint with HMAC verification and idempotency.
-- [ ] Underwriter: score from payment history (regularity, count, buyer concentration, mandate time left), compute advance and discount, produce a plain-language rationale. Payee screening against an allow/deny list.
-- [ ] Vault client (viem): call `advance`, `settle`, `flagDefault`, read state.
-- [ ] Receipts: store and CSV export.
+| Step | Status | Evidence |
+|---|---|---|
+| 0 Setup | done | Foundry 1.7.1, viem, zod, vitest, tsx installed; Next.js docs read; `npm test`, `npm run typecheck` work |
+| 1 HSP client | done (offline) | 32 tests: canonical JSON, HMAC vectors cross-checked with `openssl`, ES256K JWT verified, mandate validation, client with mocked fetch, webhook verify |
+| 3 Vault contract | done | 38 Foundry tests incl. 2 fuzz tests (512 runs each): waterfall conserves tokens, solvency invariant |
+| 5 Underwriter | done | 22 tests: scoring, caps, declines, screening |
+| 2 `pay_to` test | blocked | needs HSP credentials |
+| 4 Data fetch | not started | client can already page payments; need status mapping to `PaymentRecord` |
+| 6 Vault client + API | not started | |
+| 7 Webhook | not started | `verifyWebhook` and payload schema exist |
+| 8 End-to-end local | not started | |
+| 9 Testnet then mainnet | blocked | needs HSK RPC and HSP production access |
 
-### M3 — Agents and UI
+### Not yet verified (be honest in the demo)
 
-- [ ] Seller chat: "I need N USDC", shows underwriter offer, accept button.
-- [ ] LP view: deposit, pool utilization, yield.
-- [ ] Live dashboard: mandate, expected income, advance, repayments, waterfall progress, risk status.
-- [ ] Buyer simulator: script that pays on a schedule through HSP so the demo is repeatable.
-- [ ] Explorer links on every on-chain action.
-
-### M4 — Mainnet run and demo
-
-- [ ] One real end-to-end run on mainnet with small amounts.
-- [ ] Default scenario run (revoke mandate).
-- [ ] Record a backup demo video.
-- [ ] Submission text, repo, deployed contract address, demo link.
+- Nothing has talked to a real HSP gateway. Signing follows the docs and matches independent `openssl` vectors, but the gateway's acceptance is untested (step 2).
+- Canonical JSON string escaping vs the server (e.g. `<`, `>`, `&`, non-ASCII) is untested.
+- Vault has no malicious-token reentrancy test; it uses `nonReentrant` and a standard ERC20 only. Not audited.
+- Only `payment-finalized` (or `payment-safe`) should trigger `sweep()`; `payment-included` can still reorg.
 
 ## Cut order if short on time
 
-1. Drop the default beat (keep it as Q&A talk).
-2. Drop the LP page (seed the pool by script).
-3. Drop CSV export.
-4. Never drop: mainnet vault, one real HSP payment, live repayment.
+1. Drop the default scenario (keep as Q&A talk).
+2. Drop CSV export and any UI.
+3. Never drop: mainnet vault, one real HSP payment, working repayment waterfall.
 
 ## Risk register
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| HSP access delayed | Blocks M0 | Ask immediately; build against QA meanwhile |
-| `pay_to` contract not accepted | Blocks design | Fallback: EOA `pay_to` plus a keeper that forwards funds to the vault |
+| HSP access delayed | Blocks steps 2 and 9 | Ask now; build with mocks meanwhile |
+| `pay_to` contract not accepted | Design change | Keeper fallback described above |
 | Vault bug | Funds loss | Small caps, tests, tiny amounts on mainnet |
-| History API too thin to score | Weak underwriting | Keep the score rule-based and simple |
-| Judge reads this as unregulated lending | Credibility | State prototype status clearly; mention compliance layer |
+| History API too thin to score | Weak underwriting | Keep scoring rule-based and simple |
+| Read as unregulated lending | Credibility | State prototype status; compliance screening in the underwriter |
 
 ## Submission checklist
 

@@ -4,7 +4,7 @@ Agents that sell services on an HSP reusable mandate get paid today against inco
 
 Built for the **HSK Chain Horizon Hackathon, Mumbai Edition**, Track 2: Agent Payments & A2A Settlement (HSP).
 
-> Status: early scaffold. The Next.js app is the default template; the contract and backend are not built yet. See [plan.md](./plan.md) for the build order and [idea.md](./idea.md) for the pitch.
+> Status: core logic built and tested offline (vault contract, underwriter, HSP client). Not yet run against a real HSP gateway or deployed. See [plan.md](./plan.md) for status and [idea.md](./idea.md) for the pitch.
 
 ## Hackathon facts
 
@@ -61,6 +61,8 @@ Source: https://hashkey-merchant.github.io/docs/en/
 - A reusable order maps one `cart_mandate_id` to many payments. Set `cart_expiry` to cover the business lifecycle.
 - Common errors: `40001` mandate expired or consumed, `40002` wrong endpoint type, `10004` duplicate `payment_request_id`.
 - Supported mainnets: Ethereum, HashKey Chain, Base, Arbitrum, BNB Smart Chain. Tokens: USDC, USDT, HSK.
+- HashKey Chain appears in the docs as CAIP-2 `eip155:177`, network name `hashkey`.
+- Payment states: only `payment-finalized` is irreversible; `payment-included` and `payment-safe` can still reorg. The vault `sweep()` should wait for `payment-safe` or later.
 
 ## Open assumptions
 
@@ -78,6 +80,14 @@ Requires Node 20+ and npm.
 ```bash
 npm install
 cp .env.example .env.local   # fill in values, see below
+npm test                     # TypeScript tests (HSP client, underwriter)
+npm run typecheck
+
+# contracts (Foundry required)
+cd contracts
+forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts --no-git
+forge test
+
 npm run dev
 ```
 
