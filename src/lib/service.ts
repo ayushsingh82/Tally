@@ -222,6 +222,8 @@ export interface WebhookResult {
  * which can still reorg) when the payment targets a collector we created.
  */
 export async function handleWebhook(deps: Deps, rawBody: string, signature: string | null): Promise<WebhookResult> {
+  // Never verify against an empty secret: anyone could forge a signature for it.
+  if (!deps.cfg.appSecret) throw new ServiceError(503, "WEBHOOK_DISABLED", "HSP credentials are not configured, so webhooks are disabled");
   const verdict = verifyWebhook(signature, rawBody, deps.cfg.appSecret, Math.floor(nowOf(deps) / 1000));
   if (!verdict.ok) throw new ServiceError(401, "BAD_SIGNATURE", verdict.reason);
 

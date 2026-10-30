@@ -32,14 +32,22 @@ describe("loadEnv", () => {
 
   it("names every bad field without echoing secret values", () => {
     try {
-      loadEnv({ ...good, UNDERWRITER_PRIVATE_KEY: "0xshort", API_TOKEN: "short", HSP_APP_KEY: undefined });
+      loadEnv({ ...good, UNDERWRITER_PRIVATE_KEY: "0xshort", API_TOKEN: "short", CHAIN_RPC_URL: undefined });
       throw new Error("should have thrown");
     } catch (e) {
       const m = (e as Error).message;
       expect(m).toContain("UNDERWRITER_PRIVATE_KEY");
       expect(m).toContain("API_TOKEN");
-      expect(m).toContain("HSP_APP_KEY");
+      expect(m).toContain("CHAIN_RPC_URL");
       expect(m).not.toContain("0xshort");
     }
+  });
+
+  it("treats HSP credentials as optional and empty lines as unset", () => {
+    const e = loadEnv({ ...good, HSP_APP_KEY: "", HSP_APP_SECRET: undefined, HSP_JWT_PRIVATE_KEY: "" });
+    expect(e.HSP_APP_KEY).toBeUndefined();
+    expect(e.HSP_APP_SECRET).toBeUndefined();
+    expect(e.HSP_JWT_PRIVATE_KEY).toBeUndefined();
+    expect(e.HSP_BASE_URL).toBe("https://merchant-qa.hashkeymerchant.com");
   });
 });

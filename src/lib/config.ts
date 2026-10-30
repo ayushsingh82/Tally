@@ -5,11 +5,15 @@ const list = z
   .optional()
   .transform((s) => (s ? s.split(",").map((x) => x.trim()).filter(Boolean) : []));
 
+/** Treats an empty `KEY=` line as unset. */
+const optional = () => z.preprocess((v) => (v === "" ? undefined : v), z.string().min(1).optional());
+
 const schema = z.object({
-  HSP_BASE_URL: z.string().url(),
-  HSP_APP_KEY: z.string().min(1),
-  HSP_APP_SECRET: z.string().min(1),
-  HSP_JWT_PRIVATE_KEY: z.string().min(1),
+  HSP_BASE_URL: z.string().url().default("https://merchant-qa.hashkeymerchant.com"),
+  /** HSP credentials arrive after merchant registration. Until then orders and live history are unavailable. */
+  HSP_APP_KEY: optional(),
+  HSP_APP_SECRET: optional(),
+  HSP_JWT_PRIVATE_KEY: optional(),
   HSP_MERCHANT_NAME: z.string().min(1).default("Agent Receivables"),
   /** Payment method advertised on the mandate. Network name and token come from HSP's network list. */
   HSP_NETWORK: z.string().min(1),

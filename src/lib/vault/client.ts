@@ -1,5 +1,5 @@
 import type { Account, Address, Chain, Hex, PublicClient, Transport, WalletClient } from "viem";
-import { collectorAbi, STATUS, vaultAbi, type AdvanceStatus } from "./abi";
+import { collectorAbi, erc20Abi, STATUS, vaultAbi, type AdvanceStatus } from "./abi";
 
 export interface Position {
   seller: Address;
@@ -33,6 +33,8 @@ export interface VaultPort {
   /** Returns null when the collector held nothing to sweep. */
   sweep(collector: Address): Promise<Hex | null>;
   flagDefault(seller: Address): Promise<Hex>;
+  /** Token balance of any address (the seller's wallet, for the dashboard). */
+  tokenBalance(address: Address): Promise<bigint>;
 }
 
 const ZERO = "0x0000000000000000000000000000000000000000";
@@ -63,6 +65,11 @@ export class VaultClient implements VaultPort {
       this.read("maxAdvance"),
     ])) as bigint[];
     return { poolAssets, totalShares, reserve, outstandingPrincipal, idleCash, maxAdvance };
+  }
+
+  async tokenBalance(address: Address): Promise<bigint> {
+    const token = (await this.read("token")) as Address;
+    return this.publicClient.readContract({ address: token, abi: erc20Abi, functionName: "balanceOf", args: [address] }) as Promise<bigint>;
   }
 
   async collectorOf(seller: Address): Promise<Address | null> {

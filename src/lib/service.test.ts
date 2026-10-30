@@ -60,6 +60,9 @@ class FakeVault implements VaultPort {
   async flagDefault() {
     return tx(4);
   }
+  async tokenBalance() {
+    return 0n;
+  }
 }
 
 function steady(count: number, usd: number): PaymentRecord[] {
@@ -313,6 +316,13 @@ describe("handleWebhook", () => {
   it("records failures without sweeping", async () => {
     const b = body({ status: "payment-failed", status_reason: "timeout" });
     expect(await handleWebhook(deps, b, sign(b))).toEqual({ action: "recorded-failure", reason: "timeout" });
+    expect(vault.calls).toEqual([]);
+  });
+
+  it("refuses every webhook when no HSP secret is configured, even a validly signed one", async () => {
+    deps.cfg.appSecret = "";
+    const b = body();
+    await expect(handleWebhook(deps, b, signWebhook(b, "", Math.floor(NOW / 1000)))).rejects.toMatchObject({ status: 503, code: "WEBHOOK_DISABLED" });
     expect(vault.calls).toEqual([]);
   });
 

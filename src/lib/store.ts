@@ -18,6 +18,7 @@ export interface Store {
   getMandate(cartMandateId: string): MandateRecord | undefined;
   getMandateBySeller(seller: string): MandateRecord | undefined;
   putMandate(m: MandateRecord): void;
+  listMandates(): MandateRecord[];
   /** Returns true the first time a key is seen, false on every repeat. */
   markEvent(key: string): boolean;
   /** Forgets a key so a gateway retry is processed again (used when handling failed). */
@@ -42,6 +43,10 @@ export class MemoryStore implements Store {
   getMandateBySeller(seller: string) {
     const all = Object.values(this.state.mandates).filter((m) => lower(m.seller) === lower(seller));
     return all.sort((a, b) => b.createdAt - a.createdAt)[0];
+  }
+
+  listMandates() {
+    return Object.values(this.state.mandates);
   }
 
   putMandate(m: MandateRecord) {
