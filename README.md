@@ -1,4 +1,4 @@
-# Receivables Financing for Agents
+# Tally: Receivables Financing for Agents
 
 Agents that sell services on an HSP reusable mandate get paid today against income that arrives over time.
 
@@ -110,6 +110,51 @@ The project's `AGENTS.md` notes that this Next.js version has breaking changes. 
 | `UNDERWRITER_PRIVATE_KEY` | Role key allowed to call `advance` and `flagDefault` |
 
 Never commit real keys. `.env.local` stays untracked.
+
+## Frontend
+
+| Page | What it does |
+|---|---|
+| `/` | Landing page |
+| `/how-it-works` | Money path, life of an advance, worked example, what is real vs mocked |
+| `/playground` | Underwriter sandbox: sliders to a decision with reasons (runs in the browser) |
+| `/seller` | Pick a seller, preview and take an advance, play the buyer, trigger a default |
+| `/pool` | Pool stats, LP deposit and withdraw, all advances, loss order |
+| `/activity` | Audit trail with filters and CSV export |
+
+The interactive pages use server actions backed by an in-memory demo (`DEMO_MODE=1`, already set in `.env.local`). They are
+**disabled when demo mode is off**, so a deployment holding real funds cannot be driven from the UI. Use the token-protected
+API instead. In demo mode the `/api` routes also work, with the default token `demo-token-0123456789`.
+
+## API (all JSON)
+
+Routes marked `token` need `x-api-key: $API_TOKEN` (or `Authorization: Bearer`). The webhook uses HSP's HMAC instead.
+
+| Route | Auth | Purpose |
+|---|---|---|
+| `POST /api/orders` | token | `{seller, totalUsd, expiryDays?}` registers the seller's collector and creates a reusable HSP order |
+| `POST /api/advance` | token | `{seller, requestedUsd?, dryRun?}` underwrites from HSP history and sends the advance |
+| `GET /api/position?seller=` | token | advance, amount owed, pool state |
+| `POST /api/default` | token | `{seller, reason?}` writes off an active advance, revokes the mandate |
+| `GET /api/receipts?seller=&format=csv` | token | audit trail, optionally as CSV |
+| `POST /api/webhook/hsp` | HMAC | HSP payment callback; sweeps the seller's collector on `payment-safe`/`payment-finalized` |
+
+## Scripts
+
+```bash
+# Full local demo (HSP mocked, contracts real). Needs `anvil` running and `forge build` done.
+npx tsx scripts/simulate-buyer.ts            # happy path
+npx tsx scripts/simulate-buyer.ts --default  # buyer stops paying, reserve absorbs the loss
+
+# Does HSP accept a contract as pay_to? Dry run needs no credentials.
+npx tsx scripts/test-pay-to.ts --collector 0x... --dry-run
+npx tsx --env-file=.env.local scripts/test-pay-to.ts --collector 0x... --poll
+
+# Deploy the vault (testnet now, mainnet later: only the env changes)
+cd contracts
+TOKEN=0x... OWNER=0x... UNDERWRITER=0x... forge script script/Deploy.s.sol \
+  --rpc-url $RPC --private-key $DEPLOYER_KEY --broadcast
+```
 
 ## Planned layout
 

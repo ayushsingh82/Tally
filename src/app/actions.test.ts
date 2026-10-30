@@ -74,7 +74,7 @@ beforeEach(() => {
       store: new MemoryStore(),
       receipts: new MemoryReceiptLog(),
       hsp: { createReusableOrder: async (i) => ({ payment_request_id: i.paymentRequestId, payment_url: "https://pay.test/flow", multi_pay: true }) },
-      cfg: { merchantName: "Float", method: { network: "hashkey-testnet", chainId: 133, tokenAddress: "0x0000000000000000000000000000000000000001", coin: "USDC" }, appSecret: "s", screening: { deny: [] } },
+      cfg: { merchantName: "Tally", method: { network: "hashkey-testnet", chainId: 133, tokenAddress: "0x0000000000000000000000000000000000000001", coin: "USDC" }, appSecret: "s", screening: { deny: [] } },
     },
   });
 });

@@ -40,16 +40,17 @@ UI is later and only if time remains.
 
 | Step | Status | Evidence |
 |---|---|---|
-| 0 Setup | done | Foundry 1.7.1, viem, zod, vitest, tsx installed; Next.js docs read; `npm test`, `npm run typecheck` work |
-| 1 HSP client | done (offline) | 32 tests: canonical JSON, HMAC vectors cross-checked with `openssl`, ES256K JWT verified, mandate validation, client with mocked fetch, webhook verify |
-| 3 Vault contract | done | 38 Foundry tests incl. 2 fuzz tests (512 runs each): waterfall conserves tokens, solvency invariant |
-| 5 Underwriter | done | 22 tests: scoring, caps, declines, screening |
-| 2 `pay_to` test | blocked | needs HSP credentials |
-| 4 Data fetch | not started | client can already page payments; need status mapping to `PaymentRecord` |
-| 6 Vault client + API | not started | |
-| 7 Webhook | not started | `verifyWebhook` and payload schema exist |
-| 8 End-to-end local | not started | |
-| 9 Testnet then mainnet | blocked | needs HSK RPC and HSP production access |
+| 0, 1, 3, 5 | done, pushed | tooling, HSP client, contracts, underwriter |
+| 2 `pay_to` test | script pushed, **not run against HSP** | needs HSP credentials |
+| 4 data fetch, 6 vault client + API | done, pushed | `d4e7155`, `2a5c0dd` |
+| 7 webhook route, 8 simulator | done, pushed | `a5d6798`, `77f2bd3` |
+| 9a testnet keys | done | `.env.local`, `.secrets/` (git-ignored) |
+| 9b tooling | done, uncommitted | `scripts/check-funds.ts`, `testnet-setup.ts`, `testnet-flow.ts`, rehearsed end to end on a local chain |
+| 9c testnet deploy | **blocked on funds** | wallets hold 0 HSK and 0 USDC |
+| 11 frontend | done, uncommitted, **real-only** | demo mode removed; passcode sign-in; reads the real vault; toasts, skeletons, 404/error pages |
+| 11j real-mode UI | done, uncommitted | sign-in gate, seller registration, HSP checkout link, pool funding info |
+
+Tests: 142 TypeScript + 38 Foundry. The in-memory vault now lives in `src/lib/testkit/` for tests only.
 
 ### Not yet verified (be honest in the demo)
 

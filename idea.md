@@ -1,4 +1,4 @@
-# Idea: Receivables Financing for Agents (HSP-backed)
+# Tally: Receivables Financing for Agents (HSP-backed)
 
 Hackathon: HSK Chain Horizon Hackathon, Mumbai Edition
 Track: 2 — Agent Payments & A2A Settlement (HSP)
