@@ -5,8 +5,8 @@ import aiohttp
 
 CH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 D = os.path.dirname(os.path.abspath(__file__))
-BASE, PORT = "http://localhost:3100", 9335
-PASS = dict(l.split("=", 1) for l in open(f"{D}/.env.demo").read().splitlines() if "=" in l)["DASHBOARD_PASSCODE"]
+BASE, PORT = os.environ.get("BASE", "http://localhost:3100"), 9335
+PASS = dict(l.split("=", 1) for l in open(os.environ.get("ENVF", f"{D}/.env.demo")).read().splitlines() if "=" in l)["DASHBOARD_PASSCODE"]
 os.makedirs(f"{D}/shots", exist_ok=True)
 
 SHOTS = [
