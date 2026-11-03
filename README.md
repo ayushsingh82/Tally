@@ -177,6 +177,8 @@ npx tsx scripts/simulate-buyer.ts --default
 
 ## Configuration
 
+The network, vault and HSP payment settings ship as defaults in `src/lib/config.ts` (HashKey Chain testnet and the deployed vault), so the only values you must provide are the three secrets. Every variable below can still override its default.
+
 | Variable | Purpose |
 |---|---|
 | `CHAIN_RPC_URL`, `CHAIN_ID`, `CHAIN_NAME` | HashKey Chain network (testnet chain ID 133) |
@@ -193,6 +195,18 @@ npx tsx scripts/simulate-buyer.ts --default
 | `DATA_FILE`, `RECEIPTS_FILE` | Local state and receipt log paths |
 
 Never commit real keys. `.env.local` is git-ignored.
+
+## Deploying
+
+On Vercel, set these environment variables for Production and redeploy. Nothing else is required.
+
+| Variable | Notes |
+|---|---|
+| `DASHBOARD_PASSCODE` | Operator sign-in, 12+ characters |
+| `API_TOKEN` | Bearer token for `/api`, 16+ characters |
+| `UNDERWRITER_PRIVATE_KEY` | Role key for the vault, never committed |
+
+`HSP_APP_KEY`, `HSP_APP_SECRET` and `HSP_JWT_PRIVATE_KEY` are added once HSP merchant access is granted. State and receipts are written to `/tmp` on Vercel, so they reset between deployments.
 
 ## API
 
