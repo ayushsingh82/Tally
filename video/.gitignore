@@ -1,0 +1,13 @@
+.env.demo
+.data/
+.chrome/
+audio/
+build/
+cards/
+clips/
+frames/
+shots/
+*.mp4
+*.srt
+*.log
+.venv/
