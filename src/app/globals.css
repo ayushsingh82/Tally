@@ -382,7 +382,8 @@ details.q p { margin-top: 10px; color: var(--mute); max-width: 720px; }
 /* Explorer links and the quick-start list */
 .addr { color: var(--brand); text-decoration: none; border-bottom: 1px solid currentColor; word-break: normal; }
 .addr:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
-.checklist li { align-items: start; }
+.checklist li { grid-template-columns: 28px 1fr; align-items: start; }
+.checklist li .btn { grid-column: 2; justify-self: start; margin-top: 4px; }
 .checklist .ck-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .checklist .btn.sm { white-space: nowrap; }
 .live-strip { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 22px; padding: 10px 14px; border: 2px solid var(--ink); background: var(--sheet); font: 600 12px var(--mono); letter-spacing: 0.04em; }

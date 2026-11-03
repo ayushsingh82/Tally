@@ -58,6 +58,9 @@ export default function Overview() {
         <div className="stack">
           <section className="card">
             <header><h2>Sellers</h2><span className="small muted">Underwriting score and where each stands.</span></header>
+            {pool.sellers.length === 0 ? (
+              <p className="empty muted">No sellers yet. Register one in the seller console to start.</p>
+            ) : (
             <div className="table-wrap">
               <table>
                 <thead><tr><th>Seller</th><th>Score</th><th>Owed</th><th>Cash received</th><th>Status</th></tr></thead>
@@ -74,6 +77,7 @@ export default function Overview() {
                 </tbody>
               </table>
             </div>
+            )}
           </section>
 
           <section className="card">
