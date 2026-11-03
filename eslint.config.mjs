@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Not app source: Solidity dependencies and the demo video pipeline.
+    "contracts/**",
+    "video/**",
   ]),
 ]);
 

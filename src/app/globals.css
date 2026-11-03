@@ -378,3 +378,13 @@ details.q p { margin-top: 10px; color: var(--mute); max-width: 720px; }
 .kv dd { margin: 0; overflow-wrap: anywhere; }
 .copy { box-shadow: none; background: transparent; color: var(--brand-d); border: 0; padding: 0 4px; font: 600 11px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) { .skel, .toast { animation: none; } }
+
+/* Explorer links and the quick-start list */
+.addr { color: var(--brand); text-decoration: none; border-bottom: 1px solid currentColor; word-break: normal; }
+.addr:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+.checklist li { align-items: start; }
+.checklist .ck-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.checklist .btn.sm { white-space: nowrap; }
+.live-strip { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 22px; padding: 10px 14px; border: 2px solid var(--ink); background: var(--sheet); font: 600 12px var(--mono); letter-spacing: 0.04em; }
+.live-strip .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2); }
+.live-strip a { color: var(--brand); }

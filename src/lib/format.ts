@@ -24,3 +24,10 @@ export function timeAgo(ts: number, now: number = Date.now()): string {
 }
 
 export const pct = (n: number, digits = 0) => `${n.toFixed(digits)}%`;
+
+/** Block explorer link for an address on HashKey Chain testnet (133) or mainnet (177); undefined for other chains. */
+export function explorerAddressUrl(address: string, chainId: number): string | undefined {
+  if (chainId === 133) return `https://testnet-explorer.hskchain.net/address/${address}`;
+  if (chainId === 177) return `https://hashkey.blockscout.com/address/${address}`;
+  return undefined;
+}

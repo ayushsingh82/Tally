@@ -1,8 +1,17 @@
 "use client";
 
 import { useDapp } from "@/dapp";
-import { usd } from "@/lib/format";
+import { explorerAddressUrl, shortAddr, usd } from "@/lib/format";
 import { FlowBar, Skeleton, Stats, StatusTag } from "@/ui/bits";
+
+function AddressLink({ address, chainId }: { address: string; chainId: number }) {
+  const href = explorerAddressUrl(address, chainId);
+  return href ? (
+    <a className="mono addr" href={href} target="_blank" rel="noreferrer" title={address}>{shortAddr(address, 10, 6)} ↗</a>
+  ) : (
+    <span className="mono" title={address}>{shortAddr(address, 10, 6)}</span>
+  );
+}
 
 export default function PoolPage() {
   const d = useDapp();
@@ -72,8 +81,9 @@ export default function PoolPage() {
           <section className="card">
             <header><h2>Fund the pool</h2><span className="small muted">Liquidity providers deposit straight to the vault from their own wallet.</span></header>
             <dl className="kv">
-              <dt>Vault</dt><dd className="mono">{chain.vault}</dd>
-              <dt>Token</dt><dd className="mono">{chain.token}</dd>
+              <dt>Network</dt><dd>{chain.name}</dd>
+              <dt>Vault</dt><dd><AddressLink address={chain.vault} chainId={chain.id} /></dd>
+              <dt>Token</dt><dd><AddressLink address={chain.token} chainId={chain.id} /></dd>
             </dl>
             <p className="small muted">Approve the token, then call deposit(amount) on the vault. Withdraw by burning shares, limited to idle cash.</p>
           </section>

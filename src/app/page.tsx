@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { DEFAULTS } from "@/lib/config";
+import { explorerAddressUrl, shortAddr } from "@/lib/format";
 import { Page } from "@/ui/SiteChrome";
 
 const FAQ = [
@@ -25,11 +27,18 @@ export default function Landing() {
               <Link className="btn lg" href="/dashboard">Open the dashboard</Link>
               <Link className="btn lg ghost" href="/how-it-works">See how it works</Link>
             </div>
+            <p className="live-strip">
+              <span className="dot" aria-hidden="true" />
+              <span>Live on {DEFAULTS.CHAIN_NAME}</span>
+              <a href={explorerAddressUrl(DEFAULTS.VAULT_ADDRESS, DEFAULTS.CHAIN_ID)} target="_blank" rel="noreferrer">
+                Vault {shortAddr(DEFAULTS.VAULT_ADDRESS, 8, 6)} ↗
+              </a>
+            </p>
           </div>
 
           <div className="receipt-stage">
             <div className="receipt" aria-label="Example advance receipt">
-              <div className="hd">TALLY<br />ADVANCE / ATLAS AGENT</div>
+              <div className="hd">TALLY<br />ADVANCE / SELLER AGENT</div>
               <div className="ln"><span>Cash sent today</span><span>$192.95</span></div>
               <div className="ln"><span>Buyer payment 1</span><span>$100.00</span></div>
               <div className="st ok">PRINCIPAL REPAID</div>

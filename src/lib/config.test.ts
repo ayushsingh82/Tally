@@ -32,7 +32,7 @@ describe("loadEnv", () => {
 
   it("names every bad field without echoing secret values", () => {
     try {
-      loadEnv({ ...good, UNDERWRITER_PRIVATE_KEY: "0xshort", API_TOKEN: "short", CHAIN_RPC_URL: undefined });
+      loadEnv({ ...good, UNDERWRITER_PRIVATE_KEY: "0xshort", API_TOKEN: "short", CHAIN_RPC_URL: "not-a-url" });
       throw new Error("should have thrown");
     } catch (e) {
       const m = (e as Error).message;
@@ -41,6 +41,15 @@ describe("loadEnv", () => {
       expect(m).toContain("CHAIN_RPC_URL");
       expect(m).not.toContain("0xshort");
     }
+  });
+
+  it("falls back to the built-in testnet settings, so only the secrets are required", () => {
+    const e = loadEnv({ UNDERWRITER_PRIVATE_KEY: good.UNDERWRITER_PRIVATE_KEY, API_TOKEN: good.API_TOKEN });
+    expect(e.CHAIN_ID).toBe(133);
+    expect(e.CHAIN_RPC_URL).toBe("https://testnet.hsk.xyz");
+    expect(e.VAULT_ADDRESS).toBe("0x5d164b9a6538be31e031cf7348966e7a9fb3f661");
+    expect(e.HSP_MERCHANT_NAME).toBe("Tally");
+    expect(loadEnv({ ...good, VAULT_ADDRESS: "" }).VAULT_ADDRESS).toBe("0x5d164b9a6538be31e031cf7348966e7a9fb3f661");
   });
 
   it("treats HSP credentials as optional and empty lines as unset", () => {

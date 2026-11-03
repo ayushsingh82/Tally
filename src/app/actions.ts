@@ -25,7 +25,7 @@ async function ctx() {
     seen.add(k);
     sellers.push({ address: m.seller as Address, name: shortAddr(m.seller, 8, 4), blurb: "Registered seller", expect: "" });
   }
-  return { deps, sellers, vault: env.VAULT_ADDRESS, token: env.HSP_TOKEN_ADDRESS, hspConfigured };
+  return { deps, sellers, vault: env.VAULT_ADDRESS, token: env.HSP_TOKEN_ADDRESS, chainId: env.CHAIN_ID, chainName: env.CHAIN_NAME, hspConfigured };
 }
 type Ctx = Awaited<ReturnType<typeof ctx>>;
 
@@ -72,7 +72,7 @@ export async function getSellerDashboard(seller: string) {
 export async function getPoolDashboard() {
   return run(async (c) => ({
     ...(await poolOverview(c.deps, c.sellers)),
-    chain: { vault: c.vault, token: c.token },
+    chain: { vault: c.vault, token: c.token, id: c.chainId, name: c.chainName },
     hspConfigured: c.hspConfigured,
   }));
 }
