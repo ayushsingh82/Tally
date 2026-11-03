@@ -29,7 +29,7 @@ export default function Landing() {
 
           <div className="receipt-stage">
             <div className="receipt" aria-label="Example advance receipt">
-              <div className="hd">FLOAT<br />ADVANCE / ATLAS AGENT</div>
+              <div className="hd">TALLY<br />ADVANCE / ATLAS AGENT</div>
               <div className="ln"><span>Cash sent today</span><span>$192.95</span></div>
               <div className="ln"><span>Buyer payment 1</span><span>$100.00</span></div>
               <div className="st ok">PRINCIPAL REPAID</div>

@@ -19,7 +19,7 @@ export default function ActivityPage() {
     const r = await exportReceiptsCsv();
     if (!r.ok) return;
     const url = URL.createObjectURL(new Blob([r.data], { type: "text/csv" }));
-    Object.assign(document.createElement("a"), { href: url, download: "float-receipts.csv" }).click();
+    Object.assign(document.createElement("a"), { href: url, download: "tally-receipts.csv" }).click();
     URL.revokeObjectURL(url);
   }
 

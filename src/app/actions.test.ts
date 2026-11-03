@@ -58,7 +58,7 @@ function history(): PaymentRecord[] {
 
 beforeEach(() => {
   jar.clear();
-  (globalThis as { __floatFails?: number[] }).__floatFails = [];
+  (globalThis as { __tallyFails?: number[] }).__tallyFails = [];
   process.env.DASHBOARD_PASSCODE = PASS;
 
   vault = new MemoryVault(1_000n * U);
@@ -124,7 +124,7 @@ describe("sign-in gate", () => {
   });
 
   it("does not accept a forged cookie", async () => {
-    jar.set("float_session", "deadbeef");
+    jar.set("tally_session", "deadbeef");
     expect((await getSession()).authed).toBe(false);
   });
 
